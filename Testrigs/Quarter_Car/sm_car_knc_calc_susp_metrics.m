@@ -89,15 +89,16 @@ KNCres.Bounce.PAR.qCamberL   = simlog_camber(indBouncePara);
 KNCres.Bounce.PAR.qCamberLdelta   = simlog_camber(indBouncePara)-simlog_camber(1);
 KNCres.Bounce.PAR.fzTire     = simlog_rigFz(indBouncePara);
 KNCres.Bounce.PAR.pzWC       = simlog_pzTire(indBouncePara);
-KNCres.Bounce.PAR.pzWCR      = simlog_pzTireR(indBouncePara);
 KNCres.Bounce.PAR.pyPtch     = simlog_yCPtch(indBouncePara);
 KNCres.Bounce.PAR.pzPtch     = simlog_zCPtch(indBouncePara);
 if(length(simlog_yCPtchR)>1)
     KNCres.Bounce.PAR.pyPtchR = simlog_yCPtchR(indBouncePara);
     KNCres.Bounce.PAR.pzPtchR = simlog_zCPtchR(indBouncePara);
+    KNCres.Bounce.PAR.pzWCR   = simlog_pzTireR(indBouncePara);
 else
     KNCres.Bounce.PAR.pyPtchR = zeros(size(indBouncePara));
     KNCres.Bounce.PAR.pzPtchR = zeros(size(indBouncePara));
+    KNCres.Bounce.PAR.pzWCR   = zeros(size(indBouncePara));
 end
 
 if(isempty(indPushLeft))
@@ -110,9 +111,7 @@ else
     KNCres.Bounce.OPP.qCamberL   = simlog_camber(indBounceOppo);
     KNCres.Bounce.OPP.qCamberLdelta   = simlog_camber(indBounceOppo)-simlog_camber(indBounceOppo(1));
     KNCres.Bounce.OPP.fzTireL     = simlog_rigFz(indBounceOppo);
-    KNCres.Bounce.OPP.fzTireR     = simlog_rigFzR(indBounceOppo);
     KNCres.Bounce.OPP.pzWCL       = simlog_pzTire(indBounceOppo);
-    KNCres.Bounce.OPP.pzWCR      = simlog_pzTireR(indBounceOppo);
     KNCres.Brake.PAR.time          = simlog_t(indBrakePara);
     KNCres.Brake.PAR.fxTire        = simlog_fLong(indBrakePara);
     KNCres.Brake.PAR.qToeLdelta    = simlog_toe(indBrakePara)    -simlog_toe    (indBrakePara(1));
@@ -120,9 +119,13 @@ else
     if(length(simlog_toeR)>1)
         KNCres.Brake.PAR.qToeRdelta    = simlog_toeR(indBrakePara)   -simlog_toeR   (indBrakePara(1));
         KNCres.Brake.PAR.qCamberRdelta = simlog_camberR(indBrakePara)-simlog_camberR(indBrakePara(1));
+        KNCres.Bounce.OPP.fzTireR      = simlog_rigFzR(indBounceOppo);
+        KNCres.Bounce.OPP.pzWCR        = simlog_pzTireR(indBounceOppo);
     else
         KNCres.Brake.PAR.qToeRdelta    = zeros(size(indBrakePara));
         KNCres.Brake.PAR.qCamberRdelta = zeros(size(indBrakePara));
+        KNCres.Bounce.OPP.fzTireR      = zeros(size(indBounceOppo));
+        KNCres.Bounce.OPP.pzWCR        = zeros(size(indBounceOppo));
     end
 
     KNCres.Brake.LEFT.time          = simlog_t(indBrakeLeft);
