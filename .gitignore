@@ -1,0 +1,37 @@
+# --- MATLAB / Simulink generated files ---
+
+# Editor autosave files
+*.asv
+*.m~
+*.autosave
+
+# Simulink cache files
+*.slxc
+
+# Simulation / code generation cache folders
+slprj/
+sccprj/
+codegen/
+
+# Project working folder (simulation cache and outputs, set in project settings)
+work/
+
+# Simscape library built from +Custom/*.ssc sources at project startup (ssc_build)
+Libraries/Vehicle/Utilities/Custom_lib.slx
+
+# Compiled MEX binaries
+*.mexmaca64
+*.mexmaci64
+*.mexa64
+*.mexw64
+
+# Simulink autosave / backup models
+*.slx.original
+*.bak
+
+# MATLAB crash dumps
+matlab_crash_dump.*
+
+# --- OS files ---
+.DS_Store
+Thumbs.db
