@@ -318,6 +318,7 @@ cl_manv_longLat = {...
     'Mallory_Park';
     'Constant_Radius_CL';
     'Skidpad';
+    'FSAE_AutoX';
     'Straight_Constant_Speed';
     'Parking';
     'Fishhook';

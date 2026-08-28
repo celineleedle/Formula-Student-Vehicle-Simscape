@@ -40,6 +40,12 @@ if(isfield(Scene,'Skidpad'))
         Scene.Skidpad.Circle_Outer.d - Scene.Skidpad.Circle_Inner.d;
 end
 
+% Get FSAE Autocross parameters from Scene
+if(isfield(Scene,'FSAE_AutoX'))
+    Scene3DPlot.FSAE_AutoX.centerline = Scene.FSAE_AutoX.Track.ctrline;
+    Scene3DPlot.FSAE_AutoX.width      = Scene.FSAE_AutoX.Track.w;
+end
+
 % Get Road size from Scene
 if(isfield(Scene,'Road_Two_Lane'))
     Scene3DPlot.Road_Two_Lane.centerline    = [...

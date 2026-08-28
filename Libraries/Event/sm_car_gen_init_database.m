@@ -248,6 +248,14 @@ InitSet.Skidpad.Data         = {...
     'vChassis','m/s', 1,   0,     0;
     'sChassis','m', -25,   0,     0};
 
+%% Scene FSAE Autocross, Slow Start
+InitSet.FSAE_AutoX.Type   = 'FSAE_AutoX';
+InitSet.FSAE_AutoX.Instance     = '';
+InitSet.FSAE_AutoX.Data         = {...
+    'aChassis','rad', 0,   0,     0;
+    'vChassis','m/s', 1,   0,     0;
+    'sChassis','m', -25,   0,     0};
+
 %% Scene Constant Radius, Slow Start
 InitSet.Constant_Radius_CL.Type   = 'Constant_Radius_CL';
 InitSet.Constant_Radius_CL.Instance     = '';
