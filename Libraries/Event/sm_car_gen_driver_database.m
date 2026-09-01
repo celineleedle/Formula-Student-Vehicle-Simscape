@@ -98,7 +98,7 @@ drv.Lateral.xWheelbase.Value        = 1.53;      % m
 drv.Lateral.aMaxSteer.Value         = 80;         % deg
 drv.Lateral.fSteerCutoff.Value      = 314.159265; % rad/s
 
-drv.Lateral.Stanley.NForward.Value          = 1;          % (no units) 
+drv.Lateral.Stanley.NForward.Value          = 1.5;        % (no units)
 drv.Lateral.Stanley.NReverse.Value          = 2.5*0.1;        % (no units)
 
 drv.Lateral.Pursuit.kLookahead.Value        = 3;          % (no units)
@@ -106,7 +106,7 @@ drv.Lateral.Pursuit.xLookaheadMin.Value     = 0.5;        % m
 drv.Lateral.Pursuit.xLookaheadMax.Value     = 20;         % m
 drv.Lateral.Pursuit.nWeightHeadingErr.Value = 0.2;        % (no units)
 drv.Lateral.Pursuit.nPreviewPoints.Value    = 5;        % (no units)
-drv.Lateral.class.Value               = 'Stanley';  % Lat Driver Type               
+drv.Lateral.class.Value               = 'Stanley';  % Lat Driver Type
 
 drv.Long.mVehicle.Value             = 200;       % kg
 drv.Long.FTractive.Value            = 17297;      % N

@@ -44,7 +44,7 @@ end
 
 % Unique trajectory settings (smaller vehicles)
 mdata.Sedan_Hamba.xPreview.x.Value      = [2.5 3 10];
-mdata.FSAE_Achilles.xPreview.x.Value    = [2.5 3 10];
+mdata.FSAE_Achilles.xPreview.x.Value    = [2.5 3 20];
 
 % Fill in trajectory data and stop distance
 for i = 1:length(fieldnames(mdata))

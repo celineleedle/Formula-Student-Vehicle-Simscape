@@ -1,26 +1,41 @@
 function sm_car_trajectory_fsae_autox
 % Function to construct FSAE Autocross trajectory
-%   Computes a target speed profile along the autocross driving line
-%   using a curvature-based lateral acceleration limit and
-%   forward/backward passes with longitudinal acceleration limits.
+%   Computes the driving line and target speed profile for the autocross
+%   course:
+%     1. Driving line: minimum-curvature raceline within the track width
+%        (sm_car_fsae_autox_raceline), or the course reference path
+%     2. Speed profile: g-g diagram limits from the vehicle performance
+%        envelope (sm_car_fsae_autox_vehicle_limits) -- speed-dependent
+%        lateral grip with downforce, friction-ellipse coupling between
+%        lateral and longitudinal acceleration, and a power cap -- applied
+%        with forward/backward passes along the path.
+%
+%   All vehicle capability parameters live in
+%   sm_car_fsae_autox_vehicle_limits.m; edit that file to retune the
+%   trajectory for a different vehicle.
 %
 % Copyright 2026 The MathWorks, Inc.
 
 cd(fileparts(which(mfilename)))
 
-% Parameters for speed profile
-v_start  = 1;     % Initial speed (m/s), matches Init vehicle speed
-v_max    = 20;    % Maximum speed on straights (m/s)
-v_end    = 2;     % Target speed at end of course (m/s)
-gy_max   = 7;     % Maximum lateral acceleration (m/s^2)
-gx_accel = 5;     % Maximum longitudinal acceleration (m/s^2)
-gx_decel = 5;     % Maximum longitudinal deceleration (m/s^2)
+% Vehicle performance envelope and trajectory settings
+limits = sm_car_fsae_autox_vehicle_limits;
+
+grav   = 9.80665;                                  % m/s^2
+kAero  = 0.5*limits.rhoAir*limits.CLA/limits.mVehicle; % Downforce accel/(m/s)^2
+kDrag  = 0.5*limits.rhoAir*limits.CDA/limits.mVehicle; % Drag decel/(m/s)^2
+mu     = limits.muRoad;
 
 % Get driving line
 course = sm_car_fsae_autox_define_course;
-x_new  = course.refpath(:,1)';
-y_new  = course.refpath(:,2)';
-z_new  = course.refpath(:,3)';
+if(limits.useRaceline)
+    path = sm_car_fsae_autox_raceline(course, limits.xMargin);
+else
+    path = course.refpath;
+end
+x_new = path(:,1)';
+y_new = path(:,2)';
+z_new = path(:,3)';
 
 % Distance traveled along path
 ds_seg          = sqrt(diff(x_new).^2+diff(y_new).^2);
@@ -45,22 +60,49 @@ curv(1) = curv(2); curv(end) = curv(end-1);
 % smoothing so tight corners (hairpin) keep their full curvature value.
 curv = max(movmean(curv,5), movmax(curv,5));
 
-% Speed limit from lateral acceleration
-vx_new = min(v_max, sqrt(gy_max./max(curv,1e-6)));
+% Cornering speed limit with speed-dependent grip:
+%   v^2*curv <= mu*(g + kAero*v^2)   =>   v = sqrt(mu*g/(curv - mu*kAero))
+% Downforce raises the limit; if curv <= mu*kAero grip grows faster than
+% the demand and the corner is flat-out (vMax applies).
+denom  = curv - mu*kAero;
+vx_new = limits.vMax*ones(1,npts);
+lim_i  = denom > mu*grav/limits.vMax^2;   % Corners below vMax
+vx_new(lim_i) = sqrt(mu*grav./denom(lim_i));
 
 % End of course: finish at low speed
-vx_new(end) = v_end;
+vx_new(end) = limits.vEnd;
+vx_new(1)   = limits.vStart;
 
-% Forward pass: acceleration limit
-vx_new(1) = v_start;
-for i = 2:npts
-    vx_new(i) = min(vx_new(i), sqrt(vx_new(i-1)^2 + 2*gx_accel*ds_seg(i-1)));
+% Forward (acceleration) and backward (braking) passes with the friction
+% ellipse: longitudinal grip shrinks as cornering uses up the tires,
+%   ax_avail = ax_max*sqrt(1 - (alat/alat_max)^2)
+% Acceleration is also capped by drivetrain power.  Repeat the passes so
+% the speed-dependent coupling converges.
+for pass = 1:3
+    % Forward pass: acceleration limit
+    for i = 2:npts
+        v     = vx_new(i-1);
+        aGrip = mu*(grav + kAero*v^2);              % Total grip (m/s^2)
+        eFac  = sqrt(max(0, 1 - (v^2*curv(i-1)/aGrip)^2));
+        aPow  = limits.PMax/(limits.mVehicle*max(v,0.5)) - kDrag*v^2;
+        aAcc  = max(0, min(aGrip*eFac, aPow));
+        vx_new(i) = min(vx_new(i), sqrt(v^2 + 2*aAcc*ds_seg(i-1)));
+    end
+    % Backward pass: braking limit (drag assists)
+    for i = npts-1:-1:1
+        v     = vx_new(i+1);
+        aGrip = mu*(grav + kAero*v^2);
+        eFac  = sqrt(max(0, 1 - (v^2*curv(i+1)/aGrip)^2));
+        aBrk  = aGrip*eFac + kDrag*v^2;
+        vx_new(i) = min(vx_new(i), sqrt(v^2 + 2*aBrk*ds_seg(i)));
+    end
 end
 
-% Backward pass: braking limit
-for i = npts-1:-1:1
-    vx_new(i) = min(vx_new(i), sqrt(vx_new(i+1)^2 + 2*gx_decel*ds_seg(i)));
-end
+% Predicted time along trajectory (point-mass estimate)
+v_mid = 0.5*(vx_new(1:end-1)+vx_new(2:end));
+tPred = sum(ds_seg./v_mid);
+disp(['Trajectory: ' num2str(xTrajectory_new(end),'%3.1f') ' m, predicted time ' ...
+    num2str(tPred,'%3.1f') ' s (point-mass estimate)']);
 
 % Calculate target yaw angle (rad)
 yaw_interval = 2;
@@ -95,11 +137,13 @@ figure(evalin('base',fig_handle_name))
 clf(evalin('base',fig_handle_name))
 
 subplot(211)
+plot(course.refpath(:,1),course.refpath(:,2),'--','Color',[0.6 0.6 0.6]); hold on
 scatter(x_new,y_new,4,vx_new,'filled');
+hold off
 colorbar
 axis equal
 xlabel('X (m)'); ylabel('Y (m)');
-title('FSAE Autocross Trajectory (color = target speed m/s)');
+title('FSAE Autocross Trajectory (color = target speed m/s, dashed = reference path)');
 
 subplot(212)
 plot(xTrajectory_new,vx_new)

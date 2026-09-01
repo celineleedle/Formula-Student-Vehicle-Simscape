@@ -47,7 +47,9 @@ crosses the finish line (`Maneuver.xMax`).
 | `sm_car_fsae_autox_define_course.m` | **Course layout** — layout selector and Custom segment list |
 | `FSAE_AutoX_2024_ctrline.mat` | Digitized 2024 Michigan course centerline |
 | `sm_car_scenedata_fsae_autox.m` | Scene parameters (track, cones, ground plane) |
-| `sm_car_trajectory_fsae_autox.m` | Builds the driver trajectory (curvature-based speed profile) |
+| `sm_car_fsae_autox_vehicle_limits.m` | **Vehicle performance envelope** — edit for your vehicle |
+| `sm_car_fsae_autox_raceline.m` | Minimum-curvature raceline within the track width |
+| `sm_car_trajectory_fsae_autox.m` | Builds the driver trajectory (raceline + g-g speed profile) |
 | `sm_car_maneuverdata_fsae_autox.m` | Maneuver parameters per vehicle instance |
 | `sm_car_fsae_autox_cones_stl.m` | Writes `FSAE_AutoX_cones.stl` for the scene |
 | `sm_car_build_scene_fsae_autox.m` | One-time build/install script (see below) |
@@ -75,13 +77,37 @@ Related files elsewhere in the project:
 The build script is idempotent — it replaces the existing scene in
 `sm_car.slx` and regenerates all derived files.
 
-## Speed profile
+## Driving line and speed profile
 
-The target speed along the driving line is computed in
-`sm_car_trajectory_fsae_autox.m` from path curvature with a lateral
-acceleration limit plus forward/backward passes with longitudinal
-acceleration limits. Tune `v_max`, `gy_max`, `gx_accel`, and `gx_decel`
-there to match your vehicle's capability.
+`sm_car_trajectory_fsae_autox.m` builds the trajectory in two steps:
+
+1. **Raceline** — `sm_car_fsae_autox_raceline.m` computes a
+   minimum-curvature driving line within the cone-to-cone corridor
+   (track width minus a clearance margin `xMargin`). The optimization is
+   purely geometric; it never approaches a cone closer than `xMargin`.
+   Set `useRaceline = false` in the vehicle limits file to track the
+   course reference path instead.
+2. **g-g speed profile** — target speed from path curvature using the
+   vehicle performance envelope: speed-dependent lateral grip
+   (`mu*(g + downforce/m)`), friction-ellipse coupling between lateral
+   and longitudinal acceleration in the forward (accel) and backward
+   (braking) passes, and a drivetrain power cap.
+
+### Using a different vehicle
+
+The driver model and trajectory generation are decoupled from the
+vehicle model — the vehicle's capability enters only through the
+parameters in **`sm_car_fsae_autox_vehicle_limits.m`** (mass, friction
+coefficient, downforce/drag coefficients, peak power, speed cap, cone
+clearance margin). To run this event with your own vehicle model:
+
+1. Measure or estimate those parameters for your vehicle (skidpad test
+   for `muRoad`, acceleration run for `PMax` — see the file's comments).
+2. Re-run `sm_car_trajectory_fsae_autox` to regenerate the trajectory.
+3. Add a driver database entry for your vehicle in
+   `Libraries/Event/sm_car_gen_driver_database.m` (wheelbase, steering
+   limits, controller gains) — the same closed-loop driver tracks the
+   new trajectory unchanged.
 
 Note: in the slalom sections the visual track centerline runs straight
 through the cones while the driver trajectory weaves around them.
