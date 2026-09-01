@@ -37,9 +37,9 @@ for i=1:length(Instance_List)
     mdata.(Instance).xPreview.v.Units      = 'm/s';
     mdata.(Instance).xPreview.v.Comments   = '';
 
-    mdata.(Instance).nPreviewPoints.Value      = 5;
+    mdata.(Instance).nPreviewPoints.Value      = 11;
     mdata.(Instance).nPreviewPoints.Units      = '';
-    mdata.(Instance).nPreviewPoints.Comments   = 'For Pure Pursuit Driver';
+    mdata.(Instance).nPreviewPoints.Comments   = 'For Pure Pursuit and Stanley FF drivers';
 end
 
 % Unique trajectory settings (smaller vehicles)

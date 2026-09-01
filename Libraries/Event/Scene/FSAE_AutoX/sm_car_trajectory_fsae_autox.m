@@ -98,6 +98,25 @@ for pass = 1:3
     end
 end
 
+% Brake-anticipation margin: pull braking onset earlier by the driver
+% reaction time tauBrake.  Each target is the minimum of the profile over
+% the window the vehicle covers in tauBrake seconds ahead.  In
+% acceleration zones speeds ahead are higher, so this is a no-op there;
+% in braking zones it starts the speed reduction earlier so the
+% closed-loop driver reaches corner-entry speed in time.
+if(limits.tauBrake > 0)
+    vx_margin = vx_new;
+    for i = 1:npts-1
+        xWin = vx_new(i)*limits.tauBrake;
+        j = i;
+        while(j < npts && (xTrajectory_new(j+1)-xTrajectory_new(i)) <= xWin)
+            j = j+1;
+            vx_margin(i) = min(vx_margin(i), vx_new(j));
+        end
+    end
+    vx_new = vx_margin;
+end
+
 % Predicted time along trajectory (point-mass estimate)
 v_mid = 0.5*(vx_new(1:end-1)+vx_new(2:end));
 tPred = sum(ds_seg./v_mid);

@@ -25,7 +25,7 @@ function limits = sm_car_fsae_autox_vehicle_limits
 
 % --- Performance envelope (defaults sized for the FSAE Achilles) ---
 limits.mVehicle = 200;    % kg    Total vehicle + driver mass
-limits.muRoad   = 0.85;   % (1)   Peak tire-road friction coefficient
+limits.muRoad   = 0.80;   % (1)   Peak tire-road friction coefficient
 limits.CLA      = 0;      % m^2   Downforce coeff * area (0 = no aero)
 limits.CDA      = 0;      % m^2   Drag coeff * area (0 = ignore drag)
 limits.PMax     = 60e3;   % W     Peak power at the wheels
@@ -35,6 +35,10 @@ limits.rhoAir   = 1.206;  % kg/m^3 Air density
 % --- Trajectory generation settings ---
 limits.vStart      = 1;    % m/s  Initial speed, matches Init vehicle speed
 limits.vEnd        = 2;    % m/s  Target speed at end of course
+limits.tauBrake    = 0.4;  % s    Brake-anticipation margin: the target
+                           %      speed is pulled earlier by this driver
+                           %      reaction time so the closed-loop driver
+                           %      reaches corner-entry speed in time
 limits.useRaceline = true; % Optimize driving line within track width
 limits.xMargin     = 1.2;  % m    Clearance kept to cones/track edge:
                            %      half vehicle track width plus expected

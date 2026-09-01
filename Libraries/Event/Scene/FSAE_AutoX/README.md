@@ -91,7 +91,15 @@ The build script is idempotent — it replaces the existing scene in
    vehicle performance envelope: speed-dependent lateral grip
    (`mu*(g + downforce/m)`), friction-ellipse coupling between lateral
    and longitudinal acceleration in the forward (accel) and backward
-   (braking) passes, and a drivetrain power cap.
+   (braking) passes, and a drivetrain power cap. A brake-anticipation
+   margin (`tauBrake`) pulls braking onset earlier by the driver's
+   reaction time so the closed-loop driver reaches corner-entry speed
+   in time.
+
+The event uses the `Stanley_FF` lateral driver variant (Stanley
+feedback + curvature feedforward) — see
+`Libraries/Event/Driver_StanleyFF/README.md`. The stock Stanley driver
+cannot track the faster trajectory cleanly.
 
 ### Using a different vehicle
 
