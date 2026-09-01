@@ -17,6 +17,8 @@ elseif(any(strcmp(Maneuver.Type,  {'Slalom'})))
     sceneName = 'Slalom'; % Y-offset for road is 0
 elseif(strcmp(Maneuver.Type,'Skidpad'))
     sceneName = 'Skidpad';       % Formula Student Skidpad maneuver
+elseif(strcmp(Maneuver.Type,'FSAE_AutoX'))
+    sceneName = 'FSAE_AutoX';    % Formula Student Autocross maneuver
 else
     sceneName = 'Flat';          % Large flat surface (default)
 end

@@ -90,6 +90,20 @@ switch maneuver_str
         set_param([modelname '/Driver/Closed Loop/Maneuver'],'popup_window','Yes');
         set_param([modelname '/World'],'popup_scene','Skidpad');
 
+        % --- FSAE Autocross
+    case 'fsae autox'
+        evalin('base',['Init_data_fsae_autox;']);
+        evalin('base',['Maneuver_data_fsae_autox;']);
+        set_param(drive_h,'popup_driver_type','Closed Loop');
+        evalin('base',['Driver = DDatabase.FSAE_AutoX.' veh_inst ';']);
+        sm_car_config_road(modelname,'FSAE AutoX');
+
+        % Ensure event runs until vehicle crosses finish line
+        set_param(modelname,'StopTime','200');
+        % Stop maneuver when vehicle crosses finish line (xMax)
+        set_param([modelname '/Check'],'start_check_time_max_dist','2','max_dist_threshold','Maneuver.xMax.Value');
+        set_param([modelname '/World'],'popup_scene','FSAE AutoX');
+
         % --- crg hockenheim
     case 'crg hockenheim'
         evalin('base',['Init_data_hockenheim;']);

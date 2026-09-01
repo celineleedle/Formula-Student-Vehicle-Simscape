@@ -98,7 +98,7 @@ drv.Lateral.xWheelbase.Value        = 1.53;      % m
 drv.Lateral.aMaxSteer.Value         = 80;         % deg
 drv.Lateral.fSteerCutoff.Value      = 314.159265; % rad/s
 
-drv.Lateral.Stanley.NForward.Value          = 1;          % (no units) 
+drv.Lateral.Stanley.NForward.Value          = 1.5;        % (no units)
 drv.Lateral.Stanley.NReverse.Value          = 2.5*0.1;        % (no units)
 
 drv.Lateral.Pursuit.kLookahead.Value        = 3;          % (no units)
@@ -106,7 +106,7 @@ drv.Lateral.Pursuit.xLookaheadMin.Value     = 0.5;        % m
 drv.Lateral.Pursuit.xLookaheadMax.Value     = 20;         % m
 drv.Lateral.Pursuit.nWeightHeadingErr.Value = 0.2;        % (no units)
 drv.Lateral.Pursuit.nPreviewPoints.Value    = 5;        % (no units)
-drv.Lateral.class.Value               = 'Stanley';  % Lat Driver Type               
+drv.Lateral.class.Value               = 'Stanley';  % Lat Driver Type
 
 drv.Long.mVehicle.Value             = 200;       % kg
 drv.Long.FTractive.Value            = 17297;      % N
@@ -121,7 +121,7 @@ drv.Long.fBrakeCutoff.Value         = 31.4159265; % 1/s
 drv.Long.FFLookahead.Value          = 0.5;        % s
 drv.Long.NRollingResistance.Value   = 0.01;       % (1)
 drv.Long.NRoadFriction.Value        = 0.9;        % (1)
-drv.Long.Kp.Value                   = 0.3125;     % (1)
+drv.Long.Kp.Value                   = 0.625;      % (1)
 drv.Long.Ki.Value                   = 0.0391;     % (1)
 drv.Long.gMaxAccel.Value            = 5;          % m/s^2
 drv.Long.gMaxDecel.Value            = -10;        % m/s^2
@@ -302,6 +302,18 @@ drv.drvCycle.Filter.Measured.Value  = 125.6637;      % Hz
 Driver.(veh_name) = drv;
 clear drv
 
+%% Curvature feedforward parameters (Stanley_FF lateral driver variant)
+% Stanley feedback plus a feedforward steer for the path curvature T_FF
+% seconds ahead (see lateralDrivingControllerFF.m).  Defined for all
+% vehicles; activate per vehicle/maneuver with Lateral.class = 'Stanley_FF'
+Vnames = fieldnames(Driver);
+for Vi = 1:length(Vnames)
+    Driver.(Vnames{Vi}).Lateral.StanleyFF.KFF.Value    = 1;      % (1) FF gain
+    Driver.(Vnames{Vi}).Lateral.StanleyFF.TFF.Value    = 0.3;    % s  FF preview time
+    Driver.(Vnames{Vi}).Lateral.StanleyFF.KUnder.Value = 0.006;  % rad/(m/s^2) understeer gradient (~3.4 deg/g)
+    Driver.(Vnames{Vi}).Lateral.StanleyFF.TRef.Value   = 0.5;    % s  reference preview time (loop damping)
+end
+
 %% List of Closed-Loop Maneuvers
 % Maneuvers with longitudinal and lateral driver
 cl_manv_longLat = {...
@@ -318,6 +330,7 @@ cl_manv_longLat = {...
     'Mallory_Park';
     'Constant_Radius_CL';
     'Skidpad';
+    'FSAE_AutoX';
     'Straight_Constant_Speed';
     'Parking';
     'Fishhook';
@@ -408,6 +421,12 @@ DDatabase.Constant_Radius_CL.Sedan_HambaLG.Lateral.NForward.Value      = 3.0;
 DDatabase.Constant_Radius_CL.Bus_Makhulu.Lateral.NForward.Value        = 3.0;
 DDatabase.Straight_Constant_Speed.Sedan_HambaLG.Lateral.NForward.Value = 3.0;
 DDatabase.Straight_Constant_Speed.Bus_Makhulu.Lateral.NForward.Value   = 3.0;
+
+% FSAE Autocross: use Stanley + curvature feedforward lateral driver.
+% The autocross trajectory (raceline + g-g speed profile) is faster than
+% reactive Stanley can track cleanly; the feedforward variant anticipates
+% the curvature ahead.  Other events keep the standard Stanley driver.
+DDatabase.FSAE_AutoX.FSAE_Achilles.Lateral.class.Value = 'Stanley_FF';
 
 %% Assemble database of drivers - closed loop, longitudinal only
 

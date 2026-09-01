@@ -20,9 +20,20 @@
 %% Events
 %
 % Supported events include *Accel/Decel*, *Hockenheim (Flat)*, *Hockenheim
-% (Flat)*, and *Skidpad*. Change the event by clicking on the hyperlinks on
-% the top level of the model. Examine the code behind the hyperlinks to see
-% the necessary MATLAB commands to change the maneuver.
+% (Flat)*, *Skidpad*, and *Autocross*. Change the event by clicking on the
+% hyperlinks on the top level of the model. Examine the code behind the
+% hyperlinks to see the necessary MATLAB commands to change the maneuver.
+%
+% Configure the Autocross event with
+% <matlab:sm_car_config_maneuver('sm_car','FSAE%20AutoX'); sm_car_config_maneuver('sm_car','FSAE AutoX')>.
+% The course layout is defined in
+% <matlab:edit('sm_car_fsae_autox_define_course.m') sm_car_fsae_autox_define_course.m>.
+% The default layout is the Formula SAE Michigan 2024 autocross course,
+% digitized from the official course map; a parameterized layout
+% (straights, constant turns, hairpins, and slaloms per the FSAE rules)
+% is also included.  After editing the course, run
+% <matlab:edit('sm_car_build_scene_fsae_autox.m') sm_car_build_scene_fsae_autox.m>
+% to regenerate the cones, trajectory, and scene.
 %
 
 %% Suspension Types
